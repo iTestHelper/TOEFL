@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TestHelper - Neo Passage Readability Analysis</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <style>
+      :root {
+        --th-teal-extra-light: #e2f7f9;
+        --th-teal-light: #79bebe;
+        --th-teal-medium: #077f83;
+        --th-teal-dark: #066a6e;
+        --th-teal-darkest: #00565d;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      #btn-back-to-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 48px;
+        height: 48px;
+        padding: 0;
+        margin: 0;
+        display: none;
+      }
+
+      .bg-teal-dark {
+        --bs-bg-opacity: 1;
+        background-color: var(--th-teal-dark) !important;
+      }
+      table {
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+      table td,
+      tr {
+        text-align: center;
+      }
+      table tr th:nth-child(3) {
+        display: none;
+      }
+      table tr td:nth-child(3) {
+        display: none;
+      }
+      th.sortable {
+        position: relative;
+      }
+      th.sortable:after {
+        content: "⇅";
+        font-size: 12px;
+        position: absolute;
+        right: 8px;
+        color: #999;
+      }
+      th.asc:after {
+        content: "↑";
+      }
+      th.desc:after {
+        content: "↓";
+      }
+      th.sortable:hover {
+        cursor: pointer;
+        background-color: #077f83;
+      }
+      a {
+        text-decoration: none;
+      }
+      a i {
+        cursor: pointer;
+      }
+      .bar-container {
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .bar {
+        height: 10px;
+        border-radius: 12px;
+        text-align: right;
+        padding-right: 5px;
+        box-sizing: border-box;
+        color: #fff;
+      }
+      .very-easy {
+        background-color: #4caf50;
+      } /* Green */
+      .easy {
+        background-color: #8bc34a;
+      } /* Light Green */
+      .fairly-easy {
+        background-color: #ffc107;
+      } /* Amber */
+      .standard {
+        background-color: #ff9800;
+      } /* Orange */
+      .fairly-difficult {
+        background-color: #ff5722;
+      } /* Deep Orange */
+      .difficult {
+        background-color: #f44336;
+      } /* Red */
+      .very-difficult {
+        background-color: #d32f2f;
+      } /* Dark Red */
+    </style>
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-sm sticky-top navbar-dark bg-teal-dark py-1"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-baseline" href="#">
+          <div class="text-bold">TestHelper</div>
+        </a>
+        <div class="me-auto">
+          <ul class="nav nav-pills" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="pills-Neo-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#pills-Neo"
+                type="button"
+                role="tab"
+                aria-controls="pills-Neo"
+                aria-selected="true"
+              >
+                Neo
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="pills-TPO-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#pills-TPO"
+                type="button"
+                role="tab"
+                aria-controls="pills-TPO"
+                aria-selected="false"
+              >
+                TPO
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <p class="mt-5">
+        Neo and TPO Passage Readability Analysis Using Flesch Reading-Ease
+        <sup
+          ><a
+            type=""
+            class="text-info"
+            data-bs-toggle="modal"
+            data-bs-target="#Flesch"
+          >
+            <i class="bi bi-info-circle"></i> </a></sup
+        ><span class="d-none">and Flesch–Kincaid Grade Level<sup
+          ><a
+            type=""
+            class="text-info"
+            data-bs-toggle="modal"
+            data-bs-target="#Flesch-Kincaid"
+          >
+            <i class="bi bi-info-circle"></i> </a></sup
+        ></span>.
+      </p>
+      <div class="table-responsive">
+        <div class="tab-content" id="pills-tabContent">
+          <div
+            class="tab-pane fade show active"
+            id="pills-Neo"
+            role="tabpanel"
+            aria-labelledby="pills-Neo-tab"
+            tabindex="0"
+          >
+            <!--Neo-->
+            <table
+              class="table table-striped align-middle border"
+              id="neoTable"
+            >
+              <thead class="table-dark border border-dark">
+                <tr>
+                  <th class="sortable" data-type="string">Passage</th>
+                  <th class="sortable" data-type="number">
+                    Flesch Reading Ease
+                  </th>
+                  <th class="sortable" data-type="number">
+                    Flesch–Kincaid Grade Level
+                  </th>
+                  <th class="sortable">Difficulty</th>
+                </tr>
+              </thead>
+              <tbody id="neoResults" class="table-group-divider">
+                <!-- Results will be inserted here -->
+              </tbody>
+            </table>
+          </div>
+          <div
+            class="tab-pane fade"
+            id="pills-TPO"
+            role="tabpanel"
+            aria-labelledby="pills-TPO-tab"
+            tabindex="0"
+          >
+            <!--TPO-->
+            <table
+              class="table table-striped align-middle border"
+              id="tpoTable"
+            >
+              <thead class="table-dark border border-dark">
+                <tr>
+                  <th class="sortable" data-type="string">Passage</th>
+                  <th class="sortable" data-type="number">
+                    Flesch Reading Ease
+                  </th>
+                  <th class="sortable" data-type="number">
+                    Flesch–Kincaid Grade Level
+                  </th>
+                  <th class="sortable">Difficulty</th>
+                </tr>
+              </thead>
+              <tbody id="tpoResults" class="table-group-divider">
+                <!-- Results will be inserted here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Modal Flesch Reading Ease -->
+        <div
+          class="modal fade"
+          id="Flesch"
+          tabindex="-1"
+          aria-labelledby="FleschLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="FleschLabel">
+                  Flesch Reading Ease
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <p>
+                  The Flesch Reading-Ease score indicates how easy or difficult
+                  a text is to read. The score is calculated based on the
+                  average sentence length and the average number of syllables
+                  per word. Higher scores indicate easier readability. The
+                  following are the ranges and their readability levels:
+                </p>
+                <ul>
+                  <li>90-100: Very easy</li>
+                  <li>80-90: Easy</li>
+                  <li>70-80: Fairly easy</li>
+                  <li>60-70: Standard</li>
+                  <li>50-60: Fairly difficult</li>
+                  <li>30-50: Difficult</li>
+                  <li>0-30: Very difficult</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Flesch-Kincaid Grade Level -->
+        <div
+          class="modal fade"
+          id="Flesch-Kincaid"
+          tabindex="-1"
+          aria-labelledby="Flesch-KincaidLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="Flesch-KincaidLabel">
+                  Flesch-Kincaid Grade Level
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <p>
+                  The Flesch–Kincaid Grade Level is a readability test designed
+                  to indicate how difficult a passage in English is to
+                  understand. It is calculated based on the average sentence
+                  length and the average number of syllables per word. The
+                  resulting score corresponds to a U.S. school grade level,
+                  making it easier to interpret for educational purposes.
+                </p>
+                <ul>
+                  <li>5: Very easy (Grade 5)</li>
+                  <li>6: Easy (Grade 6)</li>
+                  <li>7: Fairly easy (Grade 7)</li>
+                  <li>8-9: Standard (Grade 8-9)</li>
+                  <li>10-12: Fairly difficult (Grade 10-12)</li>
+                  <li>College: Difficult</li>
+                  <li>College graduate: Very difficult</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Back to top button -->
+    <button
+      type="button"
+      onclick="topFunction()"
+      data-mdb-button-init
+      data-mdb-ripple-init
+      class="btn btn-success btn-floating btn-lg rounded-circle"
+      id="btn-back-to-top"
+    >
+      <i class="bi bi-arrow-up"></i>
+    </button>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+    <script>
+      function getBarClass(score) {
+        if (score >= 90) return "very-easy";
+        if (score >= 80) return "easy";
+        if (score >= 70) return "fairly-easy";
+        if (score >= 60) return "standard";
+        if (score >= 50) return "fairly-difficult";
+        if (score >= 30) return "difficult";
+        return "very-difficult";
+      }
+
+      function createBar(passage) {
+        const container = document.createElement("div");
+        container.className = "bar-container";
+
+        const bar = document.createElement("div");
+        bar.className = `bar ${getBarClass(passage.FleschReadingEase)}`;
+        bar.style.width = `${100 - passage.FleschReadingEase}%`;
+
+        container.appendChild(bar);
+        return container;
+      }
+
+      function populateTable(passages, id) {
+        const resultsContainer = document.getElementById(id);
+        resultsContainer.innerHTML = ""; // Clear existing rows
+        passages.forEach((passage) => {
+          const row = document.createElement("tr");
+
+          const titleCell = document.createElement("td");
+          const titleLink = document.createElement("a");
+          titleLink.href = passage.url;
+          titleLink.textContent = passage.title;
+          titleLink.target = "_blank";
+          titleCell.appendChild(titleLink);
+          row.appendChild(titleCell);
+
+          const scoreCell = document.createElement("td");
+          scoreCell.textContent = passage.FleschReadingEase;
+          row.appendChild(scoreCell);
+
+          const gradeCell = document.createElement("td");
+          gradeCell.textContent = passage.FleschKincaidGradeLevel;
+          row.appendChild(gradeCell);
+
+          const barCell = document.createElement("td");
+          barCell.appendChild(createBar(passage));
+          row.appendChild(barCell);
+
+          resultsContainer.appendChild(row);
+        });
+      }
+
+      function sortTable(columnIndex, dataType, tableId) {
+        const table = document.getElementById(tableId);
+        const tbody = table.tBodies[0];
+        const rows = Array.from(tbody.rows);
+        const isAscending =
+          table.rows[0].cells[columnIndex].classList.toggle("asc");
+        table.rows[0].cells[columnIndex].classList.toggle("desc", !isAscending);
+
+        rows.sort((a, b) => {
+          const aText = a.cells[columnIndex].textContent;
+          const bText = b.cells[columnIndex].textContent;
+
+          if (dataType === "number") {
+            return isAscending ? aText - bText : bText - aText;
+          } else {
+            return isAscending
+              ? aText.localeCompare(bText)
+              : bText.localeCompare(aText);
+          }
+        });
+
+        rows.forEach((row) => tbody.appendChild(row));
+      }
+
+      // Get the button:
+      let mybutton = document.getElementById("btn-back-to-top");
+
+      // When the user scrolls down 20px from the top of the document, show the button
+      window.onscroll = function () {
+        scrollFunction();
+      };
+
+      function scrollFunction() {
+        if (
+          document.body.scrollTop > 20 ||
+          document.documentElement.scrollTop > 20
+        ) {
+          mybutton.style.display = "block";
+        } else {
+          mybutton.style.display = "none";
+        }
+      }
+
+      // When the user clicks on the button, scroll to the top of the document
+      function topFunction() {
+        document.body.scrollTop = 0; // For Safari
+        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Call the function to load JSON files
+        let neoPassages, tpoPassages;
+
+        async function fetchJSONFiles(file) {
+          try {
+            const response = await fetch(file);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data;
+          } catch (error) {
+            console.error("Error fetching the JSON file:", error);
+          }
+        }
+
+        // Load the JSON files
+
+        async function loadJSONFiles() {
+          neoPassages = await fetchJSONFiles("neoPassages.json");
+          tpoPassages = await fetchJSONFiles("tpoPassages.json");
+          populateTable(neoPassages, "neoResults");
+          populateTable(tpoPassages, "tpoResults");
+        }
+        loadJSONFiles();
+
+        const neoHeaders = document
+          .getElementById("neoTable")
+          .querySelectorAll(".sortable");
+        neoHeaders.forEach((header, index) => {
+          header.addEventListener("click", () => {
+            const dataType = header.getAttribute("data-type");
+            sortTable(index, dataType, "neoTable");
+          });
+        });
+
+        const tpoHeaders = document
+          .getElementById("tpoTable")
+          .querySelectorAll(".sortable");
+
+        tpoHeaders.forEach((header, index) => {
+          header.addEventListener("click", () => {
+            const dataType = header.getAttribute("data-type");
+            sortTable(index, dataType, "tpoTable");
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
+<!-- Copyright © 2024 Iman Bayat. All rights reserved. -->
